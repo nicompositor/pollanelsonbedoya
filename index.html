@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Estadísticas Polla Mundial 2026</title>
+  <title>La polla de Nelson Bedoya</title>
   <style>
     :root {
       --blue: #3154ff;
@@ -13,6 +13,7 @@
       --peach: #f6a286;
       --purple: #7800f5;
       --green: #00df45;
+      --navy: #09266d;
       --dark: #073f35;
       --ink: #07130f;
       --muted: #5a625f;
@@ -125,6 +126,7 @@
     .fill { height: 100%; background: var(--blue); border-radius: 999px; }
     .fill.orange { background: var(--orange); }
     .fill.green { background: var(--green); }
+    .fill.navy { background: var(--navy); }
     .num { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
     .group-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
     .group-card {
@@ -187,8 +189,8 @@
 <body>
   <header>
     <div class="wrap">
-      <span class="eyebrow">Polla Mundial 2026</span>
-      <h1>Estadísticas de pronósticos</h1>
+      <span class="eyebrow">Mundial 2026</span>
+      <h1>La polla de Nelson Bedoya</h1>
       <p class="subtitle">Resumen interactivo de los formularios consolidados: favoritos, grupos, podio y tendencias por cada pregunta.</p>
     </div>
   </header>
@@ -316,7 +318,7 @@
           <h3>Grupo ${esc(group)}</h3>
           ${rows.slice(0, 4).map(row => `
             <div class="mini-row"><strong>${esc(row.team)}</strong><span class="num">${pct(row.classified_pct)}</span></div>
-            <div class="track"><div class="fill green" style="width:${Math.max(2, row.classified_pct * 100)}%"></div></div>
+            <div class="track"><div class="fill navy" style="width:${Math.max(2, row.classified_pct * 100)}%"></div></div>
           `).join('')}
         </div>
       `).join('');
