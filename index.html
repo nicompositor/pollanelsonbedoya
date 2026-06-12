@@ -1177,7 +1177,15 @@
       const result = OFFICIAL.get(String(item.id));
       if (!result) return '';
       if (item.sectionKey === 'partidosColombia') {
-        const hasGoals = Number.isFinite(Number(result.golesColombia)) && Number.isFinite(Number(result.golesRival));
+        const hasGoals =
+          result.golesColombia !== null &&
+          result.golesColombia !== undefined &&
+          result.golesColombia !== '' &&
+          result.golesRival !== null &&
+          result.golesRival !== undefined &&
+          result.golesRival !== '' &&
+          Number.isFinite(Number(result.golesColombia)) &&
+          Number.isFinite(Number(result.golesRival));
         if (hasGoals) return `${result.golesColombia} - ${result.golesRival}`;
         return result.resultado || '';
       }
@@ -1188,7 +1196,20 @@
       const result = OFFICIAL.get(String(item.id));
       if (!result) return false;
       if (item.sectionKey === 'partidosColombia') {
-        return Number.isFinite(Number(result.golesColombia)) && Number.isFinite(Number(result.golesRival));
+        const golesColombiaVacio =
+          result.golesColombia === null ||
+          result.golesColombia === undefined ||
+          result.golesColombia === '';
+
+        const golesRivalVacio =
+          result.golesRival === null ||
+          result.golesRival === undefined ||
+          result.golesRival === '';
+
+        if (golesColombiaVacio || golesRivalVacio) return false;
+
+        return Number.isFinite(Number(result.golesColombia)) &&
+          Number.isFinite(Number(result.golesRival));
       }
       return normalize(result.resultado || result.equipo) !== '';
     }
