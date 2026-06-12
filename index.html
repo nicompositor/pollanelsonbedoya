@@ -64,7 +64,6 @@
     .subtitle { max-width: 760px; margin: 0; color: rgba(255,255,255,.9); font-size: 18px; font-weight: 700; }
     main { margin-top: -58px; padding-bottom: 42px; }
     .grid { display: grid; gap: 16px; }
-    .top-grid { grid-template-columns: minmax(0, 1.1fr) minmax(300px, .9fr); align-items: start; }
     .panel {
       background: var(--panel);
       border: 1px solid var(--line);
@@ -114,8 +113,6 @@
     .kpi:nth-child(4) { border-top-color: var(--navy); }
     .kpi-label { color: var(--muted); font-size: 12px; font-weight: 900; text-transform: uppercase; }
     .kpi-value { margin-top: 6px; font-size: 28px; font-weight: 950; color: var(--navy); }
-    .next-card { background: #07101f; color: white; border-radius: 9px; padding: 14px; margin-bottom: 14px; }
-    .next-card strong { color: var(--yellow); }
     table { width: 100%; border-collapse: collapse; font-size: 14px; }
     th, td { padding: 10px 9px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
     th { position: sticky; top: 0; background: var(--navy); color: white; z-index: 1; font-size: 12px; text-transform: uppercase; }
@@ -133,7 +130,7 @@
     summary { cursor: pointer; font-weight: 850; }
     code { background: #eef1f5; padding: 2px 5px; border-radius: 4px; }
     @media (max-width: 900px) {
-      .top-grid, .search-row, .tools { grid-template-columns: 1fr; }
+      .search-row, .tools { grid-template-columns: 1fr; }
       .kpis { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 620px) {
@@ -154,30 +151,8 @@
 
   <main>
     <div class="wrap">
-      <section class="grid top-grid">
-        <div class="panel">
-          <div class="panel-head"><h2>Buscar participante</h2></div>
-          <div class="panel-body">
-            <div class="search-row">
-              <div>
-                <label for="participantSearch">Nombre</label>
-                <input id="participantSearch" type="search" placeholder="Escribe tu nombre...">
-              </div>
-              <div>
-                <label for="sectionFilter">Ver sección</label>
-                <select id="sectionFilter"></select>
-              </div>
-            </div>
-            <div class="suggestions" id="suggestions"></div>
-            <details>
-              <summary>Cómo se actualizan los resultados</summary>
-              <p class="small">En el código fuente busca <code>SOLO EDITAR AQUÍ LOS RESULTADOS OFICIALES</code>. Solo se cambian los valores entre comillas o los goles cuando aplique. La página recalcula puntos y posiciones automáticamente.</p>
-            </details>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-head"><h2>Tabla general</h2></div>
+      <section class="panel">
+          <div class="panel-head"><h2>Tabla de Posiciones</h2></div>
           <div class="panel-body">
             <div class="tools">
               <input id="standingsSearch" type="search" placeholder="Filtrar tabla...">
@@ -194,6 +169,26 @@
               </table>
             </div>
           </div>
+      </section>
+
+      <section class="panel section-gap">
+        <div class="panel-head"><h2>Buscar participante</h2></div>
+        <div class="panel-body">
+          <div class="search-row">
+            <div>
+              <label for="participantSearch">Nombre</label>
+              <input id="participantSearch" type="search" placeholder="Escribe tu nombre...">
+            </div>
+            <div>
+              <label for="sectionFilter">Ver sección</label>
+              <select id="sectionFilter"></select>
+            </div>
+          </div>
+          <div class="suggestions" id="suggestions"></div>
+          <details>
+            <summary>Cómo se actualizan los resultados</summary>
+            <p class="small">En el código fuente busca <code>SOLO EDITAR AQUÍ LOS RESULTADOS OFICIALES</code>. Solo se cambian los valores entre comillas o los goles cuando aplique. La página recalcula puntos y posiciones automáticamente.</p>
+          </details>
         </div>
       </section>
 
@@ -1146,6 +1141,19 @@
       tercerPuesto: 'Tercer puesto'
     };
 
+    const SECTION_ORDER = [
+      'partidosColombia',
+      'partidosGrupo',
+      'clasificacionGrupos',
+      'mejoresTerceros',
+      'ronda32',
+      'octavos',
+      'cuartos',
+      'semifinales',
+      'final',
+      'tercerPuesto'
+    ];
+
     const state = { selectedId: PARTICIPANTS[0]?.id || null, standings: [] };
     const fmt = new Intl.NumberFormat('es-CO');
     const collator = new Intl.Collator('es', { sensitivity: 'base' });
@@ -1266,20 +1274,22 @@
     }
 
     function participantRows(participant) {
-      return ITEMS.map(item => {
+      return [...ITEMS]
+        .sort((a, b) => {
+          const sectionDiff = SECTION_ORDER.indexOf(a.sectionKey) - SECTION_ORDER.indexOf(b.sectionKey);
+          return sectionDiff || a.position - b.position;
+        })
+        .map(item => {
         const prediction = participant.predictions[item.id] || '';
         const result = evaluatePrediction(item, prediction);
         return { item, prediction, official: officialValue(item), ...result };
       });
     }
 
-    function nextPendingRow(participant) {
-      return participantRows(participant).find(row => !itemIsUpdated(row.item) && row.prediction);
-    }
-
     function renderSectionOptions() {
       const select = document.getElementById('sectionFilter');
-      const sections = [...new Set(ITEMS.map(i => i.sectionKey))];
+      const available = new Set(ITEMS.map(i => i.sectionKey));
+      const sections = SECTION_ORDER.filter(key => available.has(key));
       select.innerHTML = '<option value="">Todas las secciones</option>' +
         sections.map(key => `<option value="${key}">${SECTION_LABELS[key]}</option>`).join('');
     }
@@ -1308,7 +1318,6 @@
       const rows = participantRows(participant);
       const section = document.getElementById('sectionFilter').value;
       const filtered = rows.filter(row => !section || row.item.sectionKey === section);
-      const next = nextPendingRow(participant);
 
       document.getElementById('participantTitle').textContent = participant.name;
       document.getElementById('participantBody').innerHTML = `
@@ -1318,13 +1327,6 @@
           <div class="kpi"><div class="kpi-label">Aciertos</div><div class="kpi-value">${fmt.format(standing.hits)}</div></div>
           <div class="kpi"><div class="kpi-label">Resultados actualizados</div><div class="kpi-value">${fmt.format(standing.updated)}</div></div>
         </div>
-        ${next ? `
-          <div class="next-card">
-            <div class="small muted">Próximo pronóstico pendiente</div>
-            <strong>${next.item.publicLabel}</strong><br>
-            Pronóstico: <strong>${next.prediction || '-'}</strong>
-          </div>
-        ` : '<div class="next-card"><strong>No hay pronósticos pendientes con el filtro actual.</strong></div>'}
         <div class="table-wrap">
           <table>
             <thead><tr><th>Sección</th><th>Partido / ítem</th><th>Pronóstico</th><th>Resultado oficial</th><th>Estado</th><th>Puntos</th></tr></thead>
