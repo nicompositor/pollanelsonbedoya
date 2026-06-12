@@ -64,6 +64,27 @@
     .subtitle { max-width: 760px; margin: 0; color: rgba(255,255,255,.9); font-size: 18px; font-weight: 700; }
     main { margin-top: -58px; padding-bottom: 42px; }
     .grid { display: grid; gap: 16px; }
+    .home-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 18px; }
+    .home-card {
+      display: block;
+      min-height: 132px;
+      padding: 20px;
+      color: white;
+      text-decoration: none;
+      background: linear-gradient(135deg, var(--red), var(--blue));
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+    }
+    .home-card:nth-child(2) { background: linear-gradient(135deg, var(--navy), var(--red)); }
+    .home-card strong {
+      display: block;
+      font-size: 24px;
+      line-height: 1.05;
+      text-transform: uppercase;
+      text-shadow: 2px 2px 0 #000;
+    }
+    .home-card span { display: block; margin-top: 10px; color: rgba(255,255,255,.88); font-weight: 700; }
     .panel {
       background: var(--panel);
       border: 1px solid var(--line);
@@ -72,6 +93,7 @@
       overflow: hidden;
     }
     .panel + .panel, .section-gap { margin-top: 18px; }
+    .is-hidden { display: none !important; }
     .panel-head {
       display: flex;
       align-items: center;
@@ -130,23 +152,58 @@
     .rank-highlight { background: #fff8d7; }
     .small { font-size: 12px; }
     .tools { display: grid; grid-template-columns: 1fr 190px; gap: 10px; margin-bottom: 12px; }
+    .home-link {
+      color: white;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      background: rgba(255,255,255,.16);
+      border: 1px solid rgba(255,255,255,.24);
+      border-radius: 999px;
+      padding: 6px 10px;
+    }
+    .standings-table td:nth-child(1) { width: 82px; }
+    .standings-table td:nth-child(3) { width: 190px; white-space: nowrap; }
     .empty { padding: 18px; color: var(--muted); }
     details { margin-top: 12px; border: 1px dashed var(--line); border-radius: 8px; padding: 11px; background: #fafafa; }
     summary { cursor: pointer; font-weight: 850; }
     code { background: #eef1f5; padding: 2px 5px; border-radius: 4px; }
     @media (max-width: 900px) {
-      .search-row, .tools { grid-template-columns: 1fr; }
+      .home-grid, .search-row, .tools { grid-template-columns: 1fr; }
       .kpis { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 620px) {
       header { padding-bottom: 78px; }
       .kpis { grid-template-columns: 1fr; }
-      .table-wrap { max-height: none; overflow: visible; border: 0; }
-      table, thead, tbody, tr, th, td { display: block; width: 100%; }
-      thead { display: none; }
-      tr { border: 1px solid var(--line); border-radius: 9px; margin-bottom: 10px; padding: 8px; background: white; }
-      td { border-bottom: 0; display: grid; grid-template-columns: 118px 1fr; gap: 8px; padding: 7px 4px; font-size: 13px; }
-      td::before { content: attr(data-label); color: var(--muted); font-weight: 900; text-transform: uppercase; font-size: 11px; }
+      .wrap { width: min(100% - 16px, 1240px); }
+      main { margin-top: -46px; }
+      .home-grid { gap: 8px; }
+      .home-card { min-height: auto; padding: 12px; border-radius: 7px; }
+      .home-card strong { font-size: 18px; }
+      .home-card span { margin-top: 5px; font-size: 12px; line-height: 1.25; }
+      .panel-head { padding: 10px 11px; }
+      h2 { font-size: 16px; }
+      .panel-body { padding: 10px; }
+      input, select { min-height: 38px; padding: 8px 10px; }
+      .tools { gap: 7px; margin-bottom: 8px; }
+      .table-wrap { max-height: none; overflow: visible; border-radius: 6px; }
+      table { font-size: 12px; }
+      th, td { padding: 7px 6px; line-height: 1.2; }
+      th { font-size: 10px; }
+      .standings-table { table-layout: fixed; }
+      .standings-table th:nth-child(1), .standings-table td:nth-child(1) { width: 48px; }
+      .standings-table th:nth-child(3), .standings-table td:nth-child(3) { width: 105px; }
+      .standings-table td { height: 38px; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .standings-table td:nth-child(2) { font-weight: 800; }
+      .standings-table .small-aciertos { display: none; }
+      .predictions-table-wrap { max-height: none; overflow: visible; border: 0; }
+      .predictions-table, .predictions-table thead, .predictions-table tbody, .predictions-table tr, .predictions-table th, .predictions-table td { display: block; width: 100%; }
+      .predictions-table thead { display: none; }
+      .predictions-table tr { border: 1px solid var(--line); border-radius: 6px; margin-bottom: 5px; padding: 4px 6px; background: white; }
+      .predictions-table td { border-bottom: 0; display: grid; grid-template-columns: 84px 1fr; gap: 5px; padding: 3px 0; font-size: 11px; line-height: 1.2; }
+      .predictions-table td::before { content: attr(data-label); color: var(--muted); font-weight: 900; text-transform: uppercase; font-size: 9px; }
+      .pill { padding: 2px 7px; font-size: 11px; }
     }
   </style>
 </head>
@@ -161,11 +218,22 @@
 
   <main>
     <div class="wrap">
-      <section class="panel">
-          <div class="panel-head"><h2>Tabla de Posiciones</h2></div>
+      <section class="grid home-grid" id="inicio" aria-label="Inicio">
+        <a class="home-card" href="#tabla-posiciones">
+          <strong>Tabla de Posiciones</strong>
+          <span>Consulta el ranking general, puntos y aciertos.</span>
+        </a>
+        <a class="home-card" href="#buscar-respuestas">
+          <strong>Buscar mis Respuestas</strong>
+          <span>Encuentra tu nombre y revisa todos tus pronósticos.</span>
+        </a>
+      </section>
+
+      <section class="panel is-hidden" id="tabla-posiciones">
+          <div class="panel-head"><h2>Tabla de Posiciones</h2><a class="home-link" href="#inicio">Volver al inicio</a></div>
           <div class="panel-body">
             <div class="tools">
-              <input id="standingsSearch" type="search" placeholder="Filtrar tabla...">
+              <input id="standingsSearch" type="search" placeholder="Escribe tu nombre">
               <select id="standingsSort">
                 <option value="position">Ordenar por posición</option>
                 <option value="points">Ordenar por puntaje</option>
@@ -173,16 +241,16 @@
               </select>
             </div>
             <div class="table-wrap">
-              <table>
-                <thead><tr><th>Pos.</th><th>Participante</th><th>Puntos</th><th>Aciertos</th></tr></thead>
+              <table class="standings-table">
+                <thead><tr><th>Pos.</th><th>Participante</th><th>Puntos / Aciertos</th></tr></thead>
                 <tbody id="standingsBody"></tbody>
               </table>
             </div>
           </div>
       </section>
 
-      <section class="panel section-gap">
-        <div class="panel-head"><h2>Buscar participante</h2></div>
+      <section class="panel section-gap is-hidden" id="buscar-respuestas">
+        <div class="panel-head"><h2>Buscar mis Respuestas</h2><a class="home-link" href="#inicio">Volver al inicio</a></div>
         <div class="panel-body">
           <div class="search-row">
             <div>
@@ -198,8 +266,8 @@
         </div>
       </section>
 
-      <section class="panel section-gap" id="participantPanel">
-        <div class="panel-head"><h2 id="participantTitle">Vista individual</h2></div>
+      <section class="panel section-gap is-hidden" id="participantPanel">
+        <div class="panel-head"><h2 id="participantTitle">Vista individual</h2><a class="home-link" href="#inicio">Volver al inicio</a></div>
         <div class="panel-body" id="participantBody">
           <div class="empty">Busca y selecciona un participante para ver sus pronósticos.</div>
         </div>
@@ -1378,8 +1446,8 @@
           <div class="kpi"><div class="kpi-label">Resultados actualizados</div><div class="kpi-value">${fmt.format(standing.updated)}</div></div>
         </div>
         ${renderTodayForecast(rows)}
-        <div class="table-wrap">
-          <table>
+        <div class="table-wrap predictions-table-wrap">
+          <table class="predictions-table">
             <thead><tr><th>Sección</th><th>Partido / ítem</th><th>Pronóstico</th><th>Resultado oficial</th><th>Estado</th><th>Puntos</th></tr></thead>
             <tbody>
               ${filtered.map(row => `
@@ -1409,10 +1477,19 @@
         <tr class="${row.id === state.selectedId ? 'rank-highlight' : ''}">
           <td data-label="Pos."><strong>#${row.position}</strong></td>
           <td data-label="Participante">${row.name}</td>
-          <td data-label="Puntos">${fmt.format(row.points)}</td>
-          <td data-label="Aciertos">${fmt.format(row.hits)}</td>
+          <td data-label="Puntos / Aciertos"><strong>${fmt.format(row.points)}</strong> pts <span class="small-aciertos">· ${fmt.format(row.hits)} aciertos</span></td>
         </tr>
       `).join('');
+    }
+
+    function updateVisibleSection() {
+      const hash = window.location.hash || '#inicio';
+      const showStandings = hash === '#tabla-posiciones';
+      const showSearch = hash === '#buscar-respuestas';
+      document.getElementById('inicio').classList.toggle('is-hidden', showStandings || showSearch);
+      document.getElementById('tabla-posiciones').classList.toggle('is-hidden', !showStandings);
+      document.getElementById('buscar-respuestas').classList.toggle('is-hidden', !showSearch);
+      document.getElementById('participantPanel').classList.toggle('is-hidden', !showSearch);
     }
 
     function renderAll() {
@@ -1425,10 +1502,12 @@
     renderSectionOptions();
     calculateStandings();
     renderAll();
+    updateVisibleSection();
     document.getElementById('participantSearch').addEventListener('input', renderSuggestions);
     document.getElementById('sectionFilter').addEventListener('change', renderParticipant);
     document.getElementById('standingsSearch').addEventListener('input', renderStandings);
     document.getElementById('standingsSort').addEventListener('change', renderStandings);
+    window.addEventListener('hashchange', updateVisibleSection);
   </script>
 </body>
 </html>
