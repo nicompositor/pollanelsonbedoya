@@ -162,6 +162,8 @@
     .bad { background: #fdecee; color: var(--bad); }
     .pending { background: #fff7d8; color: var(--pending); }
     .muted { color: var(--muted); }
+    .official-list { display: block; max-width: 420px; color: var(--navy); font-size: 12px; font-weight: 800; line-height: 1.35; }
+    .official-list-count { display: block; margin-bottom: 3px; color: var(--muted); font-size: 10px; font-weight: 950; text-transform: uppercase; }
     .rank-highlight { background: #fff8d7; }
     .small { font-size: 12px; }
     .tools { display: grid; grid-template-columns: 1fr 190px; gap: 10px; margin-bottom: 12px; }
@@ -1356,21 +1358,25 @@
     function officialListInfo(sectionKey) {
       const expected = LIST_SECTION_EXPECTED[sectionKey] || 0;
       const values = new Set();
-      const explicitList = Array.isArray(LISTAS_OFICIALES?.[sectionKey]) ? LISTAS_OFICIALES[sectionKey] : [];
-      explicitList.forEach(team => {
+      const displayValues = [];
+      function addTeam(team) {
         const value = officialComparable(team);
-        if (value) values.add(value);
-      });
+        if (!value || values.has(value)) return;
+        values.add(value);
+        displayValues.push(normalize(team));
+      }
+      const explicitList = Array.isArray(LISTAS_OFICIALES?.[sectionKey]) ? LISTAS_OFICIALES[sectionKey] : [];
+      explicitList.forEach(addTeam);
       if (!values.size) {
         ITEMS
           .filter(item => item.sectionKey === sectionKey && Number(item.points || 0) > 0)
           .forEach(item => {
-            const value = officialEntryValue(OFFICIAL.get(String(item.id)));
-            if (value) values.add(value);
+            addTeam(officialEntryValue(OFFICIAL.get(String(item.id))));
           });
       }
       return {
         values,
+        displayValues,
         count: values.size,
         expected,
         complete: expected > 0 && values.size >= expected
@@ -1519,12 +1525,9 @@
       if (!SIMPLE_LIST_SECTIONS.has(row.item.sectionKey)) {
         return row.official || '<span class="muted">Pendiente</span>';
       }
-      const selected = normalize(row.prediction);
       const info = officialListInfo(row.item.sectionKey);
-      if (!selected || !info.count) return '<span class="muted">Pendiente</span>';
-      if (info.values.has(selected)) return 'Clasificado';
-      if (!info.complete) return '<span class="muted">Pendiente</span>';
-      return 'No clasificado';
+      if (!info.count) return '<span class="muted">Pendiente</span>';
+      return `<span class="official-list"><span class="official-list-count">${info.count}/${info.expected} clasificados</span>${info.displayValues.join(', ')}</span>`;
     }
 
     function bogotaDateString(date = new Date()) {
