@@ -369,13 +369,13 @@
       "id": "11",
       "grupo": "B",
       "puesto": 1,
-      "equipo": ""
+      "equipo": "SUIZA"
     },
     {
       "id": "12",
       "grupo": "B",
       "puesto": 2,
-      "equipo": ""
+      "equipo": "CANADA"
     },
     {
       "id": "13",
@@ -1227,30 +1227,15 @@
      * No importa el orden ni el cruce. Solo cambia los textos entre comillas.
      *
      * Ejemplo:
-     * ronda32: ["COLOMBIA", "ARGENTINA", "BRASIL", ...]
+     * octavos: ["COLOMBIA", "ARGENTINA", "BRASIL", ...] // 16 equipos
+     * cuartos: ["COLOMBIA", "ARGENTINA", ...]            // 8 equipos
+     * semifinales: ["COLOMBIA", "ARGENTINA", ...]        // 4 equipos
+     * finalistas: ["COLOMBIA", "ARGENTINA"]              // 2 equipos
      *
      * Deja "" en los espacios que todavía no tengan equipo oficial.
      */
     const LISTAS_OFICIALES = {
   "mejoresTerceros": [
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    ""
-  ],
-  "ronda32": [
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
     "",
     "",
     "",
@@ -1268,15 +1253,33 @@
     "",
     "",
     "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
     ""
   ],
   "cuartos": [
     "",
     "",
     "",
+    "",
+    "",
+    "",
+    "",
     ""
   ],
   "semifinales": [
+    "",
+    "",
+    "",
+    ""
+  ],
+  "finalistas": [
     "",
     ""
   ]
@@ -1315,12 +1318,19 @@
     ];
 
     const LIST_SECTION_EXPECTED = {
-      clasificacionGrupos: 24,
       mejoresTerceros: 8,
       ronda32: 16,
       octavos: 8,
       cuartos: 4,
       semifinales: 2
+    };
+
+    const LIST_KEY_BY_SECTION = {
+      mejoresTerceros: 'mejoresTerceros',
+      ronda32: 'octavos',
+      octavos: 'cuartos',
+      cuartos: 'semifinales',
+      semifinales: 'finalistas'
     };
 
     const LIST_SECTION_KEYS = new Set(Object.keys(LIST_SECTION_EXPECTED));
@@ -1371,7 +1381,8 @@
         values.add(value);
         displayValues.push(normalize(team));
       }
-      const explicitList = Array.isArray(LISTAS_OFICIALES?.[sectionKey]) ? LISTAS_OFICIALES[sectionKey] : [];
+      const listKey = LIST_KEY_BY_SECTION[sectionKey];
+      const explicitList = Array.isArray(LISTAS_OFICIALES?.[listKey]) ? LISTAS_OFICIALES[listKey] : [];
       explicitList.forEach(addTeam);
       if (!values.size) {
         ITEMS
